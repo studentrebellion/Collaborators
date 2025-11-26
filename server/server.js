@@ -149,6 +149,11 @@ function parseSearchQuery(query) {
 
 // Routes
 
+// GET / - Root route to check server status
+app.get('/', (req, res) => {
+  res.send('Activist Meetup API is running');
+});
+
 // GET /api/activists - Search/List activists with advanced search
 app.get('/api/activists', (req, res) => {
   const { keyword, location } = req.query;
