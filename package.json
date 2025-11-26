@@ -1,0 +1,18 @@
+{
+    "name": "activist-meetup-root",
+    "version": "1.0.0",
+    "description": "Root configuration for Railway deployment",
+    "scripts": {
+        "start": "node server/server.js"
+    },
+    "dependencies": {
+        "bcryptjs": "^3.0.3",
+        "body-parser": "^1.20.2",
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "sqlite3": "^5.1.7"
+    },
+    "engines": {
+        "node": "18.x"
+    }
+}
