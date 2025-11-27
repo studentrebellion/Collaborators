@@ -7,6 +7,7 @@ require('dotenv').config(); // Load environment variables
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+console.log('PORT environment variable is:', process.env.PORT);
 
 // Middleware
 app.use(cors());
