@@ -77,6 +77,7 @@ function PostIdeas() {
             }
         } catch (error) {
             console.error('Error submitting form:', error);
+            alert('An error occurred: ' + error.message);
         }
     };
 
