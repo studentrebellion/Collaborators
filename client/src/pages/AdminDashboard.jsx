@@ -208,6 +208,7 @@ function AdminDashboard() {
                     return (
                         <div
                             key={activist.id}
+                            className="activist-card-wrapper"
                             style={{
                                 position: 'relative',
                                 minHeight: shouldExpand && cardRefs.current[activist.id]
