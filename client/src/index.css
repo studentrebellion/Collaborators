@@ -236,6 +236,23 @@ button:active {
   #root {
     padding: 1rem;
   }
+
+  .home-container header {
+    margin-top: 30px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .big-action-button {
+    width: auto;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
 }
 
 /* Home Page Styles */
