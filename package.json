@@ -3,7 +3,7 @@
     "version": "1.0.0",
     "description": "Root configuration for Railway deployment",
     "scripts": {
-        "start": "node server/server.js"
+        "start": "node server/simple.js"
     },
     "dependencies": {
         "bcryptjs": "^3.0.3",
