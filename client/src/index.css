@@ -258,10 +258,13 @@ button:active {
 
   .home-container header {
     margin-top: 2rem;
-    /* ~32px */
     padding: 0 1rem;
     width: 100%;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
   }
 
   .action-buttons {
