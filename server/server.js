@@ -513,11 +513,6 @@ app.get('/init-db', async (req, res) => {
 });
 
 // Start server
-const startServer = async () => {
-  // await initDb(); // Moved to manual route to prevent startup crashes
-  app.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-};
-
-startServer();
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server running on port ${PORT}`);
+});
