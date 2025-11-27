@@ -120,7 +120,7 @@ function parseSearchQuery(query) {
     andTerms.forEach(term => {
       term = term.trim();
       if (term) {
-        andConditions.push('interest LIKE $' + (allParams.length + 1));
+        andConditions.push('interest ILIKE $' + (allParams.length + 1));
         allParams.push(`%${term}%`);
       }
     });
@@ -131,7 +131,7 @@ function parseSearchQuery(query) {
   });
 
   phrases.forEach(phrase => {
-    orConditions.push('interest LIKE $' + (allParams.length + 1));
+    orConditions.push('interest ILIKE $' + (allParams.length + 1));
     allParams.push(`%${phrase}%`);
   });
 
@@ -139,7 +139,7 @@ function parseSearchQuery(query) {
 
   let finalSql;
   if (remainingQuery.match(/\s+OR\s+/i) && orGroups.length > 1) {
-    const phraseConditions = phrases.map((_, i) => `interest LIKE $${allParams.length - phrases.length + i + 1}`);
+    const phraseConditions = phrases.map((_, i) => `interest ILIKE $${allParams.length - phrases.length + i + 1}`);
     const nonPhraseConditions = orConditions.slice(0, orConditions.length - phrases.length);
 
     if (phraseConditions.length > 0) {
@@ -207,7 +207,7 @@ app.get('/api/activists', async (req, res) => {
   }
 
   if (location) {
-    sql += ` AND location LIKE $${params.length + 1}`;
+    sql += ` AND location ILIKE $${params.length + 1}`;
     params.push(`%${location}%`);
   }
 
