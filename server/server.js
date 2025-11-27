@@ -495,9 +495,19 @@ app.delete('/api/admin/activists/:id', async (req, res) => {
   }
 });
 
+// GET /init-db - Manual database initialization
+app.get('/init-db', async (req, res) => {
+  try {
+    await initDb();
+    res.send('Database initialized successfully');
+  } catch (err) {
+    res.status(500).send('Error initializing database: ' + err.message);
+  }
+});
+
 // Start server
 const startServer = async () => {
-  await initDb();
+  // await initDb(); // Moved to manual route to prevent startup crashes
   app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server running on port ${PORT}`);
   });
