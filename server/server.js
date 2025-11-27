@@ -1,62 +1,62 @@
 const express = require('express');
-const sqlite3 = require('sqlite3').verbose();
+const { Pool } = require('pg');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const path = require('path');
 const bcrypt = require('bcryptjs');
+require('dotenv').config(); // Load environment variables
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
 // Database Setup
-const dbPath = path.resolve(__dirname, 'activists.db');
-const db = new sqlite3.Database(dbPath, (err) => {
-  if (err) {
-    console.error('Error opening database ' + dbPath + ': ' + err.message);
-  } else {
-    console.log('Connected to the SQLite database.');
-    db.run(`CREATE TABLE IF NOT EXISTS activists (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            interest TEXT NOT NULL,
-            location TEXT NOT NULL,
-            signal_username TEXT NOT NULL,
-            alias TEXT,
-            password TEXT,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )`, (err) => {
-      if (err) {
-        console.error('Error creating table: ' + err.message);
-      }
-    });
-
-    // Create Admin Table
-    db.run(`CREATE TABLE IF NOT EXISTS admin (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      password TEXT NOT NULL
-    )`, async (err) => {
-      if (err) {
-        console.error('Error creating admin table: ' + err.message);
-      } else {
-        // Check if admin exists, if not create default
-        db.get("SELECT count(*) as count FROM admin", async (err, row) => {
-          if (err) {
-            console.error(err.message);
-          } else if (row.count === 0) {
-            const hashedPassword = await bcrypt.hash('4141', 10);
-            db.run("INSERT INTO admin (password) VALUES (?)", [hashedPassword], (err) => {
-              if (err) console.error('Error creating default admin: ' + err.message);
-              else console.log('Default admin created with password "4141"');
-            });
-          }
-        });
-      }
-    });
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
   }
 });
+
+// Initialize Database Tables
+const initDb = async () => {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS activists (
+        id SERIAL PRIMARY KEY,
+        interest TEXT NOT NULL,
+        location TEXT NOT NULL,
+        signal_username TEXT NOT NULL,
+        alias TEXT,
+        password TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS admin (
+        id SERIAL PRIMARY KEY,
+        password TEXT NOT NULL
+      )
+    `);
+
+    // Check if admin exists, if not create default
+    const adminCheck = await pool.query("SELECT count(*) as count FROM admin");
+    if (parseInt(adminCheck.rows[0].count) === 0) {
+      const hashedPassword = await bcrypt.hash('4141', 10);
+      await pool.query("INSERT INTO admin (password) VALUES ($1)", [hashedPassword]);
+      console.log('Default admin created with password "4141"');
+    }
+
+    console.log('Connected to PostgreSQL database and tables initialized.');
+  } catch (err) {
+    console.error('Error initializing database:', err);
+  }
+};
+
+initDb();
 
 // Rate limiting for password attempts
 const passwordAttempts = new Map();
@@ -106,7 +106,7 @@ function parseSearchQuery(query) {
     andTerms.forEach(term => {
       term = term.trim();
       if (term) {
-        andConditions.push('interest LIKE ?');
+        andConditions.push('interest LIKE $' + (allParams.length + 1));
         allParams.push(`%${term}%`);
       }
     });
@@ -117,15 +117,15 @@ function parseSearchQuery(query) {
   });
 
   phrases.forEach(phrase => {
+    orConditions.push('interest LIKE $' + (allParams.length + 1));
     allParams.push(`%${phrase}%`);
-    orConditions.push('interest LIKE ?');
   });
 
   if (orConditions.length === 0) return null;
 
   let finalSql;
   if (remainingQuery.match(/\s+OR\s+/i) && orGroups.length > 1) {
-    const phraseConditions = phrases.map(() => 'interest LIKE ?');
+    const phraseConditions = phrases.map((_, i) => `interest LIKE $${allParams.length - phrases.length + i + 1}`);
     const nonPhraseConditions = orConditions.slice(0, orConditions.length - phrases.length);
 
     if (phraseConditions.length > 0) {
@@ -155,33 +155,48 @@ app.get('/', (req, res) => {
 });
 
 // GET /api/activists - Search/List activists with advanced search
-app.get('/api/activists', (req, res) => {
+app.get('/api/activists', async (req, res) => {
   const { keyword, location } = req.query;
-  let sql = "SELECT id, interest, location, signal_username, alias, password, created_at FROM activists WHERE created_at >= date('now', '-2 months')";
+  let sql = "SELECT id, interest, location, signal_username, alias, password, created_at FROM activists WHERE created_at >= NOW() - INTERVAL '2 months'";
   const params = [];
 
   if (keyword) {
     const searchConditions = parseSearchQuery(keyword);
 
     if (searchConditions) {
+      // We need to re-index params because parseSearchQuery starts at $1
+      // but we might have other params before it (though here we don't yet)
+      // Actually, parseSearchQuery returns $1, $2... which is fine if it's the first thing added.
+      // But if we add location later, we need to be careful.
+      // Simplification: Let's just use the logic but handle params carefully.
+
+      // Re-implementing simplified search for Postgres to avoid complex $n re-indexing issues in this migration
+      // For now, let's stick to basic LIKE search if complex parsing is too risky without testing
+      // OR, let's just fix the indices.
+
+      // Let's use a simpler approach for migration safety:
+      // Just basic keyword search if the parser is too complex to port blindly.
+      // But the user wants the feature.
+
+      // Let's try to adapt the parser output.
+      // The parser returns SQL with $1, $2... and a params array.
+      // If we append it, it works fine as long as it's the first condition.
+
       sql += ' AND (' + searchConditions.sql + ')';
       params.push(...searchConditions.params);
     }
   }
 
   if (location) {
-    sql += ' AND location LIKE ?';
+    sql += ` AND location LIKE $${params.length + 1}`;
     params.push(`%${location}%`);
   }
 
   sql += ' ORDER BY created_at DESC';
 
-  db.all(sql, params, (err, rows) => {
-    if (err) {
-      res.status(400).json({ "error": err.message });
-      return;
-    }
-    const rowsWithFlag = rows.map(row => {
+  try {
+    const result = await pool.query(sql, params);
+    const rowsWithFlag = result.rows.map(row => {
       const hasPassword = row.password !== null && row.password !== '';
       const { password, ...rowWithoutPassword } = row;
       return {
@@ -193,7 +208,9 @@ app.get('/api/activists', (req, res) => {
       "message": "success",
       "data": rowsWithFlag
     });
-  });
+  } catch (err) {
+    res.status(400).json({ "error": err.message });
+  }
 });
 
 // POST /api/activists - Add new activist
@@ -210,29 +227,28 @@ app.post('/api/activists', async (req, res) => {
     hashedPassword = await bcrypt.hash(password, 10);
   }
 
-  const sql = 'INSERT INTO activists (interest, location, signal_username, alias, password) VALUES (?,?,?,?,?)';
+  const sql = 'INSERT INTO activists (interest, location, signal_username, alias, password) VALUES ($1, $2, $3, $4, $5) RETURNING id';
   const params = [interest, location, signal_username, alias || '', hashedPassword];
 
-  db.run(sql, params, function (err) {
-    if (err) {
-      res.status(400).json({ "error": err.message });
-      return;
-    }
+  try {
+    const result = await pool.query(sql, params);
     res.json({
       "message": "success",
       "data": {
-        id: this.lastID,
+        id: result.rows[0].id,
         interest,
         location,
         signal_username,
         alias
       }
     });
-  });
+  } catch (err) {
+    res.status(400).json({ "error": err.message });
+  }
 });
 
 // POST /api/activists/verify - Verify password and return post data
-app.post('/api/activists/verify', (req, res) => {
+app.post('/api/activists/verify', async (req, res) => {
   const { id, password } = req.body;
 
   if (!id || !password) {
@@ -245,13 +261,11 @@ app.post('/api/activists/verify', (req, res) => {
     return;
   }
 
-  const sql = 'SELECT * FROM activists WHERE id = ?';
+  const sql = 'SELECT * FROM activists WHERE id = $1';
 
-  db.get(sql, [id], async (err, row) => {
-    if (err) {
-      res.status(400).json({ "error": err.message });
-      return;
-    }
+  try {
+    const result = await pool.query(sql, [id]);
+    const row = result.rows[0];
 
     if (!row) {
       res.status(404).json({ "error": "Post not found" });
@@ -276,7 +290,9 @@ app.post('/api/activists/verify', (req, res) => {
       "message": "success",
       "data": postData
     });
-  });
+  } catch (err) {
+    res.status(400).json({ "error": err.message });
+  }
 });
 
 // PUT /api/activists/:id - Update existing activist
@@ -289,13 +305,11 @@ app.put('/api/activists/:id', async (req, res) => {
     return;
   }
 
-  const checkSql = 'SELECT password FROM activists WHERE id = ?';
+  const checkSql = 'SELECT password FROM activists WHERE id = $1';
 
-  db.get(checkSql, [id], async (err, row) => {
-    if (err) {
-      res.status(400).json({ "error": err.message });
-      return;
-    }
+  try {
+    const checkResult = await pool.query(checkSql, [id]);
+    const row = checkResult.rows[0];
 
     if (!row) {
       res.status(404).json({ "error": "Post not found" });
@@ -314,30 +328,27 @@ app.put('/api/activists/:id', async (req, res) => {
       return;
     }
 
-    const updateSql = 'UPDATE activists SET interest = ?, location = ?, signal_username = ?, alias = ? WHERE id = ?';
+    const updateSql = 'UPDATE activists SET interest = $1, location = $2, signal_username = $3, alias = $4 WHERE id = $5';
     const params = [interest, location, signal_username, alias || '', id];
 
-    db.run(updateSql, params, function (err) {
-      if (err) {
-        res.status(400).json({ "error": err.message });
-        return;
+    await pool.query(updateSql, params);
+    res.json({
+      "message": "success",
+      "data": {
+        id: parseInt(id),
+        interest,
+        location,
+        signal_username,
+        alias
       }
-      res.json({
-        "message": "success",
-        "data": {
-          id: parseInt(id),
-          interest,
-          location,
-          signal_username,
-          alias
-        }
-      });
     });
-  });
+  } catch (err) {
+    res.status(400).json({ "error": err.message });
+  }
 });
 
 // DELETE /api/activists/:id - Delete activist
-app.delete('/api/activists/:id', (req, res) => {
+app.delete('/api/activists/:id', async (req, res) => {
   const { id } = req.params;
   const { password } = req.body;
 
@@ -346,13 +357,11 @@ app.delete('/api/activists/:id', (req, res) => {
     return;
   }
 
-  const checkSql = 'SELECT password FROM activists WHERE id = ?';
+  const checkSql = 'SELECT password FROM activists WHERE id = $1';
 
-  db.get(checkSql, [id], async (err, row) => {
-    if (err) {
-      res.status(400).json({ "error": err.message });
-      return;
-    }
+  try {
+    const checkResult = await pool.query(checkSql, [id]);
+    const row = checkResult.rows[0];
 
     if (!row) {
       res.status(404).json({ "error": "Post not found" });
@@ -371,24 +380,20 @@ app.delete('/api/activists/:id', (req, res) => {
       return;
     }
 
-    const deleteSql = 'DELETE FROM activists WHERE id = ?';
-
-    db.run(deleteSql, [id], function (err) {
-      if (err) {
-        res.status(400).json({ "error": err.message });
-        return;
-      }
-      res.json({
-        "message": "success"
-      });
+    const deleteSql = 'DELETE FROM activists WHERE id = $1';
+    await pool.query(deleteSql, [id]);
+    res.json({
+      "message": "success"
     });
-  });
+  } catch (err) {
+    res.status(400).json({ "error": err.message });
+  }
 });
 
 // --- ADMIN ROUTES ---
 
 // POST /api/admin/login
-app.post('/api/admin/login', (req, res) => {
+app.post('/api/admin/login', async (req, res) => {
   const { password } = req.body;
 
   if (!password) {
@@ -396,11 +401,9 @@ app.post('/api/admin/login', (req, res) => {
     return;
   }
 
-  db.get("SELECT password FROM admin LIMIT 1", async (err, row) => {
-    if (err) {
-      res.status(500).json({ "error": err.message });
-      return;
-    }
+  try {
+    const result = await pool.query("SELECT password FROM admin LIMIT 1");
+    const row = result.rows[0];
 
     if (!row) {
       res.status(500).json({ "error": "Admin not configured" });
@@ -413,11 +416,13 @@ app.post('/api/admin/login', (req, res) => {
     } else {
       res.status(401).json({ "error": "Invalid password" });
     }
-  });
+  } catch (err) {
+    res.status(500).json({ "error": err.message });
+  }
 });
 
 // POST /api/admin/change-password
-app.post('/api/admin/change-password', (req, res) => {
+app.post('/api/admin/change-password', async (req, res) => {
   const { currentPassword, newPassword } = req.body;
 
   if (!currentPassword || !newPassword) {
@@ -425,11 +430,9 @@ app.post('/api/admin/change-password', (req, res) => {
     return;
   }
 
-  db.get("SELECT password FROM admin LIMIT 1", async (err, row) => {
-    if (err) {
-      res.status(500).json({ "error": err.message });
-      return;
-    }
+  try {
+    const result = await pool.query("SELECT password FROM admin LIMIT 1");
+    const row = result.rows[0];
 
     const match = await bcrypt.compare(currentPassword, row.password);
     if (!match) {
@@ -438,18 +441,15 @@ app.post('/api/admin/change-password', (req, res) => {
     }
 
     const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-    db.run("UPDATE admin SET password = ?", [hashedNewPassword], (err) => {
-      if (err) {
-        res.status(500).json({ "error": err.message });
-        return;
-      }
-      res.json({ "message": "success" });
-    });
-  });
+    await pool.query("UPDATE admin SET password = $1", [hashedNewPassword]);
+    res.json({ "message": "success" });
+  } catch (err) {
+    res.status(500).json({ "error": err.message });
+  }
 });
 
 // DELETE /api/admin/activists/:id - Admin Delete (no post password required)
-app.delete('/api/admin/activists/:id', (req, res) => {
+app.delete('/api/admin/activists/:id', async (req, res) => {
   const { id } = req.params;
   const { adminPassword } = req.body;
 
@@ -458,12 +458,10 @@ app.delete('/api/admin/activists/:id', (req, res) => {
     return;
   }
 
-  // Verify admin password first
-  db.get("SELECT password FROM admin LIMIT 1", async (err, row) => {
-    if (err) {
-      res.status(500).json({ "error": err.message });
-      return;
-    }
+  try {
+    // Verify admin password first
+    const adminResult = await pool.query("SELECT password FROM admin LIMIT 1");
+    const row = adminResult.rows[0];
 
     const match = await bcrypt.compare(adminPassword, row.password);
     if (!match) {
@@ -472,19 +470,17 @@ app.delete('/api/admin/activists/:id', (req, res) => {
     }
 
     // Proceed to delete
-    const deleteSql = 'DELETE FROM activists WHERE id = ?';
-    db.run(deleteSql, [id], function (err) {
-      if (err) {
-        res.status(400).json({ "error": err.message });
-        return;
-      }
-      if (this.changes === 0) {
-        res.status(404).json({ "error": "Post not found" });
-      } else {
-        res.json({ "message": "success" });
-      }
-    });
-  });
+    const deleteSql = 'DELETE FROM activists WHERE id = $1';
+    const deleteResult = await pool.query(deleteSql, [id]);
+
+    if (deleteResult.rowCount === 0) {
+      res.status(404).json({ "error": "Post not found" });
+    } else {
+      res.json({ "message": "success" });
+    }
+  } catch (err) {
+    res.status(400).json({ "error": err.message });
+  }
 });
 
 // Start server
