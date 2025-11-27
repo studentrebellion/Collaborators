@@ -63,7 +63,7 @@ const initDb = async () => {
   }
 };
 
-// initDb();
+
 
 // Rate limiting for password attempts
 const passwordAttempts = new Map();
@@ -496,6 +496,11 @@ app.delete('/api/admin/activists/:id', async (req, res) => {
 });
 
 // Start server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-});
+const startServer = async () => {
+  await initDb();
+  app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server running on port ${PORT}`);
+  });
+};
+
+startServer();
