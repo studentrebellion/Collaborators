@@ -63,7 +63,7 @@ const initDb = async () => {
   }
 };
 
-initDb();
+// initDb();
 
 // Rate limiting for password attempts
 const passwordAttempts = new Map();
