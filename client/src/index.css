@@ -225,36 +225,67 @@ button:active {
 
 /* Responsive */
 @media (max-width: 640px) {
-  h1 {
-    font-size: 2.5rem;
+
+  /* Global Mobile Adjustments */
+  #root {
+    padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 
+  h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+  }
+
+  /* Form Adjustments */
   .input-group {
     flex-direction: column;
   }
 
-  #root {
-    padding: 1rem;
+  /* Homepage Specific Mobile Styles */
+  .home-container {
+    width: 100%;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
   }
 
   .home-container header {
-    margin-top: 30px;
+    margin-top: 2rem;
+    /* ~32px */
+    padding: 0 1rem;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .action-buttons {
+    display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     width: 100%;
+    gap: 1.5rem;
+    /* Space between buttons */
   }
 
   .big-action-button {
     width: 100%;
     max-width: 300px;
-    height: 140px;
-    margin: 0.5rem 0;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    /* Cap width at 300px */
+    height: auto;
+    /* Allow content to dictate height */
+    min-height: 140px;
+    /* Minimum height for touch target */
+    margin: 0;
+    /* Reset margins, use gap instead */
+    padding: 1.5rem;
     box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
   }
 }
 
