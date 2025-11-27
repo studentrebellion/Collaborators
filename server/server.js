@@ -207,8 +207,14 @@ app.get('/api/activists', async (req, res) => {
   }
 
   if (location) {
-    sql += ` AND location ILIKE $${params.length + 1}`;
-    params.push(`%${location}%`);
+    const lowerLoc = location.toLowerCase();
+    if (lowerLoc === 'sf' || lowerLoc === 'san francisco') {
+      sql += ` AND (location ILIKE $${params.length + 1} OR location ILIKE $${params.length + 2})`;
+      params.push('%SF%', '%San Francisco%');
+    } else {
+      sql += ` AND location ILIKE $${params.length + 1}`;
+      params.push(`%${location}%`);
+    }
   }
 
   sql += ' ORDER BY created_at DESC';

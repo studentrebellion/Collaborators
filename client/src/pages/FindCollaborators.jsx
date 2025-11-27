@@ -225,7 +225,7 @@ function FindCollaborators() {
                                 </h3>
                                 <div className="location-badge">{activist.location}</div>
                                 <div className="signal-box">
-                                    <span style={{ fontWeight: 600 }}>Signal Username: </span>
+                                    <span style={{ fontWeight: 600 }}>Signal: </span>
                                     {activist.signal_username}
                                 </div>
 
