@@ -8,10 +8,17 @@ require('dotenv').config(); // Load environment variables
 const app = express();
 const PORT = process.env.PORT || 3000;
 console.log('PORT environment variable is:', process.env.PORT);
+console.log('DATABASE_URL is set:', !!process.env.DATABASE_URL);
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+
+// Request logging middleware
+app.use((req, res, next) => {
+  console.log(`[REQUEST] ${req.method} ${req.url}`);
+  next();
+});
 
 // Database Setup
 if (!process.env.DATABASE_URL) {
