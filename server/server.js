@@ -156,6 +156,11 @@ function parseSearchQuery(query) {
 
 // Routes
 
+// GET /health - Dedicated health check route
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
+
 // GET / - Root route to check server status
 app.get('/', (req, res) => {
   res.send('Activist Meetup API is running');
