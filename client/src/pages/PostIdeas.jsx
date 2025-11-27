@@ -73,6 +73,9 @@ function PostIdeas() {
                 if (response.ok) {
                     setFormData({ interest: '', location: '', signal_username: '', alias: '', password: '' });
                     navigate('/find');
+                } else {
+                    const error = await response.json();
+                    alert(error.error || 'Failed to create post');
                 }
             }
         } catch (error) {
