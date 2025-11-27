@@ -274,9 +274,7 @@ function AdminDashboard() {
                                 </h3>
                                 <div className="location-badge">{activist.location}</div>
                                 <div className="signal-box">
-                                    <svg className="signal-icon" viewBox="0 0 24 24">
-                                        <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
-                                    </svg>
+                                    <span style={{ fontWeight: 600 }}>Signal Username: </span>
                                     {activist.signal_username}
                                 </div>
 
