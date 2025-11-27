@@ -1,5 +1,5 @@
 {
-    "name": "activist-meetup-root",
+    "name": "collaborations-root",
     "version": "1.0.0",
     "description": "Root configuration for Railway deployment",
     "scripts": {

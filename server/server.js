@@ -170,7 +170,7 @@ app.get('/health', (req, res) => {
 
 // GET / - Root route to check server status
 app.get('/', (req, res) => {
-  res.send('Activist Meetup API is running');
+  res.send('Collaborations API is running');
 });
 
 // GET /api/activists - Search/List activists with advanced search
