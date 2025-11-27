@@ -11,12 +11,12 @@ function Home() {
             <div className="action-buttons">
                 <Link to="/find" className="big-action-button find-button">
                     <h2>Find Collaborators</h2>
-                    <p>Browse profiles and connect with like-minded activists.</p>
+                    <p>Browse collaboration possibilties</p>
                 </Link>
 
                 <Link to="/post" className="big-action-button post-button">
-                    <h2>Post Collaboration Ideas</h2>
-                    <p>Share your vision and find people to help make it happen.</p>
+                    <h2>Post Collaboration Idea</h2>
+                    <p>Share your vision so others can find you</p>
                 </Link>
             </div>
         </div>
