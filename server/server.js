@@ -13,6 +13,12 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Database Setup
+if (!process.env.DATABASE_URL) {
+  console.error('FATAL ERROR: DATABASE_URL environment variable is not set.');
+  console.error('Please ensure the PostgreSQL plugin is added and linked in Railway.');
+  process.exit(1);
+}
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
