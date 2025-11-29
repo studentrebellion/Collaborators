@@ -4,8 +4,8 @@ function Home() {
     return (
         <div className="home-container">
             <header>
-                <h1>Collaborations</h1>
-                <p className="subtitle">Connect and collaborate.</p>
+                <h1>Collaborators</h1>
+                <p className="subtitle">Find and connect.</p>
             </header>
 
             <div className="action-buttons">
