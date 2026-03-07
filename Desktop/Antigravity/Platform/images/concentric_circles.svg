@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <!-- Outer circle with radius 2r (80 units) -->
+  <circle cx="100" cy="100" r="80" fill="none" stroke="black" stroke-width="1.5"/>
+  <!-- Inner circle with radius r (40 units) -->
+  <circle cx="100" cy="100" r="40" fill="none" stroke="black" stroke-width="1.5"/>
+</svg>

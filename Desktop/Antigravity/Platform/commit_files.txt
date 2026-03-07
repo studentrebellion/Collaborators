@@ -1,0 +1,45 @@
+﻿Desktop/Antigravity/Platform/.gemini/implementation_plan.md
+Desktop/Antigravity/Platform/Make Test.html
+Desktop/Antigravity/Platform/Mock Test Adaptive.html
+Desktop/Antigravity/Platform/Quant_Problems.html
+Desktop/Antigravity/Platform/Question List Original B.html
+Desktop/Antigravity/Platform/Question List Original C.html
+Desktop/Antigravity/Platform/Question List Original.html
+Desktop/Antigravity/Platform/Question List from Platform.html
+Desktop/Antigravity/Platform/Question List.html
+Desktop/Antigravity/Platform/Verbal.md
+Desktop/Antigravity/Platform/Verbal.pdf
+Desktop/Antigravity/Platform/extract_pdf.js
+Desktop/Antigravity/Platform/gre-platform
+Desktop/Antigravity/Platform/logo.png
+Desktop/Antigravity/Platform/logo2.png
+Desktop/Antigravity/Platform/node_modules/path2d-polyfill/CHANGELOG.md
+Desktop/Antigravity/Platform/node_modules/path2d-polyfill/README.md
+Desktop/Antigravity/Platform/node_modules/path2d-polyfill/dist/path2d-polyfill.dev.js
+Desktop/Antigravity/Platform/node_modules/path2d-polyfill/dist/path2d-polyfill.esm.js
+Desktop/Antigravity/Platform/node_modules/path2d-polyfill/dist/path2d-polyfill.min.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/CODE_OF_CONDUCT.md
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/README.md
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/build/pdf.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/build/pdf.min.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/build/pdf.sandbox.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/build/pdf.sandbox.min.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/build/pdf.worker.entry.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/build/pdf.worker.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/build/pdf.worker.min.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/image_decoders/pdf.image_decoders.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/image_decoders/pdf.image_decoders.min.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/legacy/build/pdf.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/legacy/build/pdf.min.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/legacy/build/pdf.sandbox.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/legacy/build/pdf.sandbox.min.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/legacy/build/pdf.worker.entry.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/legacy/build/pdf.worker.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/legacy/build/pdf.worker.min.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/legacy/image_decoders/pdf.image_decoders.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/legacy/image_decoders/pdf.image_decoders.min.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/legacy/web/pdf_viewer.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/web/pdf_viewer.js
+Desktop/Antigravity/Platform/node_modules/pdfjs-dist/webpack.js
+Desktop/Antigravity/Platform/pool_data.js
+Desktop/Antigravity/Platform/verbal_pdf_text.txt

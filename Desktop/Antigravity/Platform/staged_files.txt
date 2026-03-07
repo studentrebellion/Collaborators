@@ -1,0 +1,2 @@
+﻿Desktop/Antigravity/Platform/Verbal.md
+Desktop/Antigravity/Platform/verbal_pdf_text.txt

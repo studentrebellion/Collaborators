@@ -1,0 +1,1880 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POWERPREP™ Online - Practice Test</title>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        /* --- Layout & Reset --- */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #808080;
+            /* Whole body grey */
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            /* Top align the card */
+            overflow-y: auto;
+            padding-top: 20px;
+            min-width: 1020px;
+            /* Force scrollbar if window < 1020px */
+        }
+
+        /* --- Header Bars --- */
+        #test-header {
+            background-color: #333;
+            /* Dark header */
+            color: #e0e0e0;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 10px;
+            flex-shrink: 0;
+            border-bottom: 1px solid #555;
+            z-index: 10;
+            width: 100%;
+            /* Fill card width */
+            box-sizing: border-box;
+        }
+
+        .nav-logo-area {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .nav-logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e0e0e0;
+            font-family: Arial;
+        }
+
+        .nav-test-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .nav-buttons-area {
+            display: flex;
+            gap: 5px;
+            height: 100%;
+            align-items: center;
+        }
+
+        .toolbar-btn {
+            background: linear-gradient(to bottom, #5a5a5a, #444);
+            border: 1px solid #222;
+            border-radius: 4px;
+            color: #ccc;
+            height: 44px;
+            padding: 0 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 11px;
+            cursor: pointer;
+            min-width: 50px;
+            position: relative;
+        }
+
+        .toolbar-btn:hover {
+            background: linear-gradient(to bottom, #666, #505050);
+            color: white;
+        }
+
+        .toolbar-btn.blue {
+            background: linear-gradient(to bottom, #3C6E96, #2b5275);
+            border: 1px solid #1a3550;
+            color: white;
+        }
+
+        .toolbar-btn.blue:hover {
+            background: linear-gradient(to bottom, #4a80ab, #35608a);
+        }
+
+        .toolbar-icon {
+            font-size: 16px;
+            margin-bottom: 2px;
+            display: block;
+        }
+
+        #sub-header {
+            background-color: #F0F0F0;
+            border-bottom: 1px solid #ccc;
+            height: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 13px;
+            font-weight: bold;
+            color: #333;
+            flex-shrink: 0;
+            z-index: 9;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .timer-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* --- Main Area & Page Card --- */
+        /* --- Main Area & Page Card --- */
+
+        button.marked-active {
+            background: #bbb;
+            /* Darker grey to show pressed state */
+            border-color: #666;
+            box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.3);
+        }
+
+        .page-card {
+            background-color: white;
+            width: 1000px;
+            /* min-height removed */
+            border: 2px solid black;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            /* No padding-bottom here to let footer sit flush if needed, but questions have spacer */
+            margin-bottom: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            flex-shrink: 0;
+            /* Prevent shrinking */
+        }
+
+        #main-area-content {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            /* Padding for content inside card below headers */
+        }
+
+        /* --- Styles from combined_questions.html --- */
+        .question-block {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header-banner {
+            background-color: #e0e0e0;
+            padding: 10px 40px;
+            text-align: left;
+            /* Default left for Q2, Q1 was center but left looks fine or override */
+            /* Q1 originally had text-align: center in first iteration but I changed it? 
+               Wait, let's look at recent CSS for recreated_question.html. 
+               Step 37: text-align: center; 
+               recreated_question_2 (Step 59): text-align: left; 
+               I should probably specificity or class for alignment if strict matching is needed. 
+               The images typically show left alignment for instructions. 
+               I'll default to left, but strictly Q1 image had centered text? 
+               Looking at the very first image - "Select one entry..." looks centered? 
+               The second image "For each blank..." is definitely left.
+               I'll add a utility class or specific style inline for Q1 header if needed.
+               Actually, in Step 37 (Q1), I had text-align: center. 
+               In Step 59 (Q2), I had text-align: left.
+               I'll make .header-banner default left, and add .text-center class for Q1.
+            */
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #000;
+            margin-top: 20px;
+            margin-bottom: 60px;
+            width: auto;
+            max-width: 90%;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .content-container {
+            max-width: 800px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .question-text {
+            font-size: 18px;
+            text-align: left;
+            line-height: 1.4;
+            width: 100%;
+            margin-bottom: 30px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .blank-line {
+            display: inline-block;
+            border-bottom: 1px solid black;
+            width: 90px;
+            margin: 0 2px;
+            vertical-align: bottom;
+        }
+
+        /* Q1 Table Styles */
+        .options-table-q1 {
+            border-collapse: collapse;
+            width: 250px;
+        }
+
+        .options-table-q1 tr {
+            border: 1px solid black;
+        }
+
+        .options-table-q1 td {
+            text-align: center;
+            padding: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            border: 1px solid black;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .options-table-q1 tr:hover {
+            background-color: #e6f7ff;
+        }
+
+        /* Q2 Layout Styles */
+        .options-wrapper {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+
+        }
+
+        .choice-column {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .col-header {
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .options-table-q2 {
+            border-collapse: collapse;
+            width: 250px;
+        }
+
+        .options-table-q2 tr {
+            border: 1px solid black;
+        }
+
+        .options-table-q2 td {
+            text-align: center;
+            padding: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            border: 1px solid black;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .options-table-q2 tr:hover {
+            background-color: #e6f7ff;
+        }
+
+
+        .footer-banner {
+            background-color: #d0d0d0;
+            padding: 10px 40px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #000;
+            margin-top: 0;
+            margin-bottom: 20px;
+            width: auto;
+            align-self: center;
+        }
+
+        .spacer {
+            height: 100px;
+            width: 100%;
+            flex-shrink: 0;
+        }
+
+        /* Navigation Buttons - Handled by Mock Test toolbar */
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Split Layout Styles */
+        .split-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            /* Fill the question block */
+            min-height: 550px;
+            /* Ensure enough height for split */
+            align-items: stretch;
+        }
+
+        .split-left {
+            width: 50%;
+            border-right: 2px solid black;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .split-right {
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 20px 20px 20px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .blue-banner {
+            background-color: #000080;
+            color: white;
+            padding: 5px 10px;
+            font-weight: bold;
+            font-size: 14px;
+            border-bottom: 2px solid black;
+            margin-bottom: 15px;
+            font-family: Arial, sans-serif;
+        }
+
+        .passage-text {
+            padding: 0 20px;
+            font-size: 16px;
+            line-height: 1.4;
+            text-align: left;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .highlighted-text {
+            background-color: #d0d0d0;
+        }
+
+        /* Custom Options for Q4/Q5 */
+        .option-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 20px;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .option-circle {
+            width: 16px;
+            height: 16px;
+            border: 1px solid black;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: .5px;
+            background: white;
+            /* Added based on combined_questions */
+        }
+
+        .option-square {
+            width: 16px;
+            height: 16px;
+            border: 1px solid black;
+            flex-shrink: 0;
+            margin-top: .5px;
+            background: white;
+            /* Added based on combined_questions */
+        }
+
+        .option-text {
+            font-size: 16px;
+            color: black;
+            line-height: 1.3;
+        }
+
+        .grey-instruction-box {
+            background-color: #e0e0e0;
+            padding: 10px;
+            font-size: 14px;
+            color: black;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        .question-instruction-text {
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-align: left;
+            font-family: 'Times New Roman', Times, serif;
+        }
+
+        /* Footer override for split view */
+        .split-footer {
+            background-color: #d0d0d0;
+            padding: 10px 20px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            color: #000;
+            margin-top: auto;
+            align-self: center;
+            width: auto;
+        }
+
+        /* Fraction and QC Styles */
+        .fraction {
+            display: inline-block;
+            text-align: center;
+            vertical-align: middle;
+            margin: 0 2px;
+        }
+
+        .fraction-top {
+            display: block;
+            border-bottom: 1px solid black;
+            padding: 0 2px;
+            font-size: 0.9em;
+        }
+
+        .fraction-bottom {
+            display: block;
+            padding: 0 2px;
+            font-size: 0.9em;
+        }
+
+        .qc-container {
+            width: 100%;
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 40px;
+            margin-top: 10px;
+            font-family: 'Times New Roman', Times, serif;
+            font-size: 18px;
+        }
+
+        .qc-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 45%;
+        }
+
+        .qc-header {
+            text-decoration: underline;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .qc-value {
+            text-align: center;
+        }
+
+        .qc-top-spacer {
+            height: 80px;
+            width: 100%;
+        }
+
+        /* Numeric Entry Styles */
+        .numeric-entry-box {
+            width: 112px;
+            height: 25px;
+            border: 2px solid black;
+            font-size: 16px;
+            /* Reduced font size slightly to fit */
+            padding: 4px;
+            text-align: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .figure-container {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        /* Fraction Entry Styles */
+        .fraction-entry-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .fraction-input {
+            width: 78px;
+            height: 18px;
+            border: 2px solid black;
+            font-size: 14px;
+            /* Slightly reduced font size */
+            padding: 4px;
+            text-align: center;
+        }
+
+        .fraction-line {
+            width: 100px;
+            height: 2px;
+            background-color: black;
+            margin: 5px 0;
+        }
+
+        /* Sentence Selection Styles */
+        .sentence-span {
+            cursor: pointer;
+            padding: 2px 0;
+            transition: background-color 0.1s, color 0.1s;
+        }
+
+        .sentence-span:hover,
+        .sentence-span.selected {
+            background-color: black;
+            color: white;
+        }
+
+        /* Selected States */
+        .filled-circle {
+            background-color: black;
+        }
+
+        .crossed-square {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M2 2 L12 12 M12 2 L2 12' stroke='black' stroke-width='2'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 80%;
+        }
+
+        .inverted-text {
+            background-color: black !important;
+            color: white !important;
+        }
+
+        .options-table-q1 .inverted-text,
+        .options-table-q2 .inverted-text {
+            background-color: black !important;
+            color: white !important;
+        }
+
+        /* Needed for Mock Test specific layout */
+        .start-page-container {
+            padding: 20px 40px;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .gre-logo-text {
+            font-size: 24px;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        .gre-logo-star {
+            color: #555;
+        }
+
+        .orange-bar {
+            width: 100%;
+            height: 25px;
+            background-color: #D45D00;
+            margin-bottom: 20px;
+        }
+
+        .start-title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+            font-style: italic;
+        }
+
+        .start-subtitle {
+            font-size: 16px;
+            color: #444;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-weight: bold;
+            margin-right: 10px;
+            font-size: 14px;
+        }
+
+        .form-input {
+            padding: 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            width: 200px;
+        }
+
+        .blue-btn {
+            background-color: #3C6E96;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .blue-btn:hover {
+            background-color: #2b5275;
+        }
+
+        .copyright {
+            font-size: 11px;
+            color: #666;
+            margin-top: 50px;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+
+        /* Review Screen */
+        .review-title {
+            font-size: 24px;
+            font-weight: bold;
+            border-bottom: 1px solid #ccc;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+        }
+
+        .review-instr {
+            font-size: 13px;
+            margin-bottom: 20px;
+            line-height: 1.4;
+        }
+
+        .review-tables {
+            display: flex;
+            gap: 30px;
+        }
+
+        .review-table-col {
+            flex: 1;
+        }
+
+        .review-table-header {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
+        .review-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+
+        .review-table th {
+            background-color: #fff8dc;
+            border: 1px solid black;
+            border-bottom: 2px solid black;
+            padding: 4px;
+        }
+
+        .review-table td {
+            border: 1px solid black;
+            padding: 4px;
+            text-align: center;
+        }
+
+        .review-table tr.selected {
+            background-color: #cce5ff;
+        }
+
+        /* Exit View */
+        .exit-view-container {
+            padding: 30px 40px;
+        }
+
+        .exit-header {
+            font-size: 18px;
+            font-weight: bold;
+            border-bottom: 1px solid #ccc;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            color: #444;
+            font-family: Arial;
+        }
+
+        .exit-text {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #333;
+            margin-bottom: 30px;
+            font-family: Arial;
+        }
+
+        .exit-actions {
+            display: flex;
+            gap: 20px;
+            justify-content: flex-start;
+            margin-left: 20px;
+        }
+
+        /* Calculator */
+        .calc-window {
+            position: absolute;
+            width: 260px;
+            /* Wider for 5 cols */
+            background-color: #D6D6D6;
+            border: 2px solid #5a7a9e;
+            /* Blue border */
+            box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.3);
+            z-index: 2000;
+            font-family: Arial, sans-serif;
+            border-radius: 4px;
+            /* Slight radius */
+        }
+
+        .calc-bar {
+            padding: 2px;
+            display: flex;
+            justify-content: flex-end;
+            cursor: move;
+            background-color: #D6D6D6;
+        }
+
+        .calc-close {
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            text-align: center;
+            line-height: 18px;
+            border: 1px solid #999;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            color: black;
+            border-radius: 2px;
+        }
+
+        .calc-content {
+            padding: 8px;
+        }
+
+        .calc-display {
+            width: 100%;
+            height: 35px;
+            background: white;
+            border: 1px solid #999;
+            margin-bottom: 8px;
+            text-align: right;
+            font-size: 20px;
+            padding: 4px 5px;
+            box-sizing: border-box;
+            font-weight: bold;
+        }
+
+        .calc-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+        }
+
+        .calc-btn {
+            height: 32px;
+            font-size: 14px;
+            cursor: pointer;
+            background: linear-gradient(to bottom, #f2f2f2, #dbe2e8);
+            /* Default Light Grey/Blueish */
+            border: 1px solid #a0a0a0;
+            border-radius: 3px;
+            font-weight: normal;
+        }
+
+        .calc-btn:hover {
+            filter: brightness(0.95);
+        }
+
+        /* Dark Blue Buttons */
+        .calc-btn.blue {
+            background: linear-gradient(to bottom, #3C6E96, #2b5275);
+            color: white;
+            border: 1px solid #1a3550;
+        }
+
+        /* Orange Buttons */
+        .calc-btn.orange {
+            background: linear-gradient(to bottom, #D35400, #A04000);
+            /* Brownish orange */
+            color: white;
+            border: 1px solid #6E2C00;
+        }
+
+        .calc-transfer-btn {
+            grid-column: span 5;
+            background: linear-gradient(to bottom, #aaa, #888);
+            color: white;
+            font-weight: bold;
+            margin-top: 4px;
+            border: 1px solid #666;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Start Screen -->
+    <div id="start-screen"
+        style="width:100%; height: 100vh; overflow-y: auto; background-color:white; z-index:100; position:absolute; top:0; left:0;">
+        <div class="orange-bar"></div>
+        <div class="start-page-container">
+            <div class="gre-logo-text">GRE</div>
+
+            <div class="start-subtitle">Practice Test</div>
+            <p style="font-size: 14px; margin-bottom: 10px;">Enter your first and last name in the following fields.</p>
+            <div style="display: flex; gap: 20px; margin-bottom: 20px;">
+                <div><span class="form-label">First Name:</span><input type="text" class="form-input"></div>
+                <div><span class="form-label">Last Name:</span><input type="text" class="form-input"></div>
+            </div>
+            <div class="form-group">
+                <input type="checkbox" id="accomm">
+                <label for="accomm" style="font-size: 13px;">Select testing accommodations for this practice test.<br>
+                    <span style="font-size: 12px; color: #666; margin-left: 22px;">(For test takers with disabilities
+                        and health-related needs...)</span></label>
+            </div>
+            <button class="blue-btn" onclick="launchTest()">Launch Test</button>
+            <div class="copyright">Copyright © 2026 by Educational Testing Service. All rights reserved.</div>
+        </div>
+    </div>
+
+    <!-- Test Interface -->
+    <div id="test-interface" class="hidden" style="width: 100%; justify-content: center; display: flex;">
+
+        <div class="page-card">
+            <!-- Headers inside Card -->
+            <div id="test-header">
+                <div class="nav-logo-area">
+                    <div class="nav-logo">*gre.</div>
+                    <div class="nav-test-name">Practice Test 2</div>
+                </div>
+                <div class="nav-buttons-area" id="standard-nav-buttons">
+                    <button class="toolbar-btn" onclick="showExitModal()">
+                        <span class="toolbar-icon">🚪</span>Exit Section
+                    </button>
+                    <!-- Quit w/Save Removed -->
+                    <button class="toolbar-btn hidden" id="btn-calc" onclick="toggleCalc()">
+                        <span class="toolbar-icon">🖩</span>Calc
+                    </button>
+                    <div style="width: 10px;"></div>
+                    <button class="toolbar-btn" id="btn-mark" onclick="toggleMark()">
+                        <span class="toolbar-icon">☐</span>Mark
+                    </button>
+                    <button class="toolbar-btn" onclick="toggleReview()">
+                        <span class="toolbar-icon">🔖</span>Review
+                    </button>
+                    <!-- Help Removed -->
+                    <div style="width: 10px;"></div>
+                    <button class="toolbar-btn" onclick="prevQuestion()" id="btn-back">
+                        <span class="toolbar-icon">⬅</span>Back
+                    </button>
+                    <button class="toolbar-btn" onclick="nextQuestion()" id="btn-next">
+                        <span class="toolbar-icon">➡</span>Next
+                    </button>
+                    <button class="toolbar-btn blue hidden" onclick="handleContinue()" id="btn-continue">
+                        <span class="toolbar-icon" style="font-size: 14px;">➡</span>Continue
+                    </button>
+                </div>
+                <!-- Review Header Buttons -->
+                <div class="nav-buttons-area hidden" id="review-nav-buttons">
+                    <button class="toolbar-btn blue" onclick="toggleReview()">
+                        <span class="toolbar-icon">⬅</span>Return
+                    </button>
+                    <button class="toolbar-btn blue" onclick="handleContinue()">
+                        <span class="toolbar-icon" style="font-size:14px;">◎</span>Go to Question
+                    </button>
+                </div>
+                <!-- End Section Header Buttons -->
+                <div class="nav-buttons-area hidden" id="end-section-nav-buttons">
+                    <button class="toolbar-btn" onclick="toggleReview()">
+                        <span class="toolbar-icon">🔖</span>Review
+                    </button>
+                    <div style="width: 10px;"></div>
+                    <button class="toolbar-btn blue" onclick="showScreen('question')">
+                        <span class="toolbar-icon">⬅</span>Return
+                    </button>
+                    <button class="toolbar-btn blue" onclick="goToNextSection()">
+                        <span class="toolbar-icon">➡</span>Continue
+                    </button>
+                </div>
+            </div>
+            <div id="sub-header">
+                <div id="section-info-text">Section 1 of 4 | Question 1 of 12</div>
+                <div class="timer-container">
+                    <span id="timer-display">00:00:00</span>
+                    <span id="btn-toggle-time" style="font-weight: normal; font-size: 11px; cursor: pointer;"
+                        onclick="toggleTimer()">Hide Time</span>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div id="main-area-content">
+
+                <!-- Section Start -->
+                <div id="section-start-view" class="hidden">
+                    <!-- Content injected dynamically by JS -->
+                </div>
+
+                <!-- Live Question View -->
+                <div id="question-view" class="hidden">
+                    <!-- Template Injected Here -->
+                </div>
+
+                <!-- End of Section View -->
+                <div id="end-section-view" class="hidden">
+                    <div class="section-instructions"
+                        style="padding: 20px 40px; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5; text-align: left;">
+                        <div class="section-title" style="margin-bottom: 5px; font-weight: bold; font-size: 24px;">End
+                            of Section</div>
+                        <hr style="border: 0; border-top: 1px solid #ccc; margin-bottom: 20px;">
+
+                        <p style="margin-bottom: 20px;">You have reached the end of this section. You have time
+                            remaining to review. As long as there is time remaining, you can check your work. Once you
+                            leave this section, you WILL NOT be able to return to it.</p>
+
+                        <p style="margin-bottom: 10px;">Select <b>Review</b> to go back to the Review screen.</p>
+                        <p style="margin-bottom: 10px;">Select <b>Return</b> to go to the last question in this section.
+                        </p>
+                        <p style="margin-bottom: 10px;">Select <b>Continue</b> to proceed to the next section of the
+                            test.</p>
+                    </div>
+                </div>
+
+                <!-- Review View -->
+                <div id="review-view" class="hidden" style="width: 100%; padding: 20px; box-sizing: border-box;">
+                    <div class="review-title">Review</div>
+                    <hr style="border: 0; border-top: 1px solid #ccc; margin-bottom: 20px; margin-top: -5px;">
+                    <div class="review-instr" style="margin-bottom: 40px;">
+                        This page presents information about questions in the current section. You may sort the
+                        questions by <b>Number, Status</b>, and <b>Marked</b>.<br>
+                        The question you were on is selected and highlighted by default. Questions you have encountered
+                        have a status of <b>Answered</b>, <b>Incomplete</b>, or <b>Not Answered</b>.<br><br>
+                        To return to the question you were on, select <b>Return</b>. To go to a different question,
+                        select that question and select <b>Go to Question</b>.
+                    </div>
+                    <div class="review-tables">
+                        <div class="review-table-col">
+                            <div class="review-table-header">First <span id="rev-half-count-1">6</span> Rows Sorted by
+                                Number in Ascending Order</div>
+                            <table class="review-table" id="rev-table-left">
+                                <thead>
+                                    <tr>
+                                        <th>Number</th>
+                                        <th>Status</th>
+                                        <th>Marked</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                        <div class="review-table-col">
+                            <div class="review-table-header">Last <span id="rev-half-count-2">6</span> Rows Sorted by
+                                Number in Ascending Order</div>
+                            <table class="review-table" id="rev-table-right">
+                                <thead>
+                                    <tr>
+                                        <th>Number</th>
+                                        <th>Status</th>
+                                        <th>Marked</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Exit View -->
+                <div id="exit-view" class="hidden">
+                    <div class="exit-view-container">
+                        <div class="exit-header">Exit Section Confirmation</div>
+                        <hr style="border: 0; border-top: 1px solid #ccc; margin-bottom: 20px; margin-top: -15px;">
+                        <div class="exit-text">
+                            <p>If you select <b>Exit Section</b>, you WILL NOT be able to return to this section of the
+                                test.</p>
+                            <p>Select <b>Exit Section</b> to confirm that you would like to exit this section. Select
+                                <b>Return</b> to return to the section.
+                            </p>
+                        </div>
+                        <div class="exit-actions">
+                            <button class="toolbar-btn"
+                                style="min-width: 100px; height: 30px; font-weight: bold; background: #E0E0E0; border: 1px solid #999; color: black;"
+                                onclick="confirmExit()">Exit Section</button>
+                            <button class="blue-btn" onclick="closeExitModal()">Return</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Calculator -->
+    <div id="calculator" class="calc-window hidden" style="top: 100px; left: 100px;">
+        <div class="calc-bar" onmousedown="dragCalc(event)">
+            <div class="calc-close" onclick="toggleCalc()">X</div>
+        </div>
+        <div class="calc-content">
+            <input type="text" class="calc-display" readonly value="0.">
+            <div class="calc-grid">
+                <!-- Row 1 -->
+                <button class="calc-btn blue" onclick="calcMem('MR')">MR</button>
+                <button class="calc-btn blue" onclick="calcMem('MC')">MC</button>
+                <button class="calc-btn blue" onclick="calcMem('M+')">M+</button>
+                <button class="calc-btn blue" onclick="calcAppend('(')">(</button>
+                <button class="calc-btn blue" onclick="calcAppend(')')">)</button>
+
+                <!-- Row 2 -->
+                <button class="calc-btn" onclick="calcAppend('7')">7</button>
+                <button class="calc-btn" onclick="calcAppend('8')">8</button>
+                <button class="calc-btn" onclick="calcAppend('9')">9</button>
+                <button class="calc-btn blue" onclick="calcAppend('/')">÷</button>
+                <button class="calc-btn orange" onclick="calcClear('C')">C</button>
+
+                <!-- Row 3 -->
+                <button class="calc-btn" onclick="calcAppend('4')">4</button>
+                <button class="calc-btn" onclick="calcAppend('5')">5</button>
+                <button class="calc-btn" onclick="calcAppend('6')">6</button>
+                <button class="calc-btn blue" onclick="calcAppend('*')">×</button>
+                <button class="calc-btn orange" onclick="calcClear('CE')">CE</button>
+
+                <!-- Row 4 -->
+                <button class="calc-btn" onclick="calcAppend('1')">1</button>
+                <button class="calc-btn" onclick="calcAppend('2')">2</button>
+                <button class="calc-btn" onclick="calcAppend('3')">3</button>
+                <button class="calc-btn blue" onclick="calcAppend('-')">-</button>
+                <button class="calc-btn blue" onclick="calcSqrt()">√</button>
+
+                <!-- Row 5 -->
+                <button class="calc-btn blue" onclick="calcNeg()">±</button>
+                <button class="calc-btn" onclick="calcAppend('0')">0</button>
+                <button class="calc-btn" onclick="calcAppend('.')">.</button>
+                <button class="calc-btn blue" onclick="calcAppend('+')">+</button>
+                <button class="calc-btn blue" onclick="calcEval()">=</button>
+
+                <!-- Row 6 -->
+                <button class="calc-btn calc-transfer-btn" onclick="transferDisplay()">Transfer Display</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="pool_data.js"></script>
+    <script>
+        // --- State ---
+        const sections = [
+            { name: "Verbal Reasoning", count: 12, minutes: 18, type: 'verbal' },
+            { name: "Quantitative Reasoning", count: 12, minutes: 21, type: 'quant' },
+            { name: "Verbal Reasoning", count: 15, minutes: 23, type: 'verbal' },
+            { name: "Quantitative Reasoning", count: 15, minutes: 26, type: 'quant' }
+        ];
+
+        let currentSectionIdx = -1;
+        let currentQIdx = 0;
+        let answers = []; // Stores correctness (boolean) of current section
+        let timer = null;
+        let timeLeft = 0;
+        let isInReview = false;
+        let selectedReviewIdx = null;
+
+        // Adaptive Scores from previous sections
+        let s1Score = 0; // Verbal 1 score
+        let s2Score = 0; // Quant 1 score
+
+        // Adaptive Pools Mapping (Index in pool_data.js arrays)
+        // Verbal Questions from Question List:
+        // Q1-Q3 (Easy) -> Indices 0, 1, 2
+        // Q4-Q6 (Hard) -> Indices 3, 4, 5
+        // Medium -> Same as current (Full pool)
+
+        // Quant Questions from Question List:
+        // Q8-Q10 (Easy) -> Indices 1, 2, 3 (since Q7 is index 0)
+        // Q11-Q13 (Hard) -> Indices 4, 5, 6
+        // Medium -> Same as current (Full pool)
+
+        const verbalEasyIndices = [0, 1, 2];
+        const verbalHardIndices = [3, 4, 5];
+        const quantEasyIndices = [1, 2, 3];
+        const quantHardIndices = [4, 5, 6];
+
+        // --- Functions ---
+        function launchTest() {
+            document.getElementById('start-screen').parentElement.removeChild(document.getElementById('start-screen'));
+            document.getElementById('test-interface').classList.remove('hidden');
+            startSection(0);
+        }
+        // --- Timer Functions ---
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return String(hrs).padStart(2, '0') + ':' + String(mins).padStart(2, '0') + ':' + String(secs).padStart(2, '0');
+        }
+
+        function updateTimerDisplay() {
+            const el = document.getElementById('timer-display');
+            if (el) el.innerText = formatTime(timeLeft);
+        }
+
+        function startTimer() {
+            if (timer) clearInterval(timer);
+            updateTimerDisplay();
+            timer = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateTimerDisplay();
+                } else {
+                    stopTimer();
+                    alert('Time is up for this section!');
+                    showScreen('endSection');
+                }
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timer) {
+                clearInterval(timer);
+                timer = null;
+            }
+        }
+
+        function toggleTimer() {
+            const display = document.getElementById('timer-display');
+            const btn = document.getElementById('btn-toggle-time');
+
+            if (display.classList.contains('hidden')) {
+                display.classList.remove('hidden');
+                btn.innerText = "Hide Time";
+            } else {
+                display.classList.add('hidden');
+                btn.innerText = "Show Time";
+            }
+        }
+
+        // Track correctness per question
+        let questionCorrectness = [];
+        let markedQuestions = [];
+
+        function startSection(idx) {
+            stopTimer(); // Ensure timer is stopped while instructions are shown
+            // Grade previous section
+            if (idx > 0 && currentSectionIdx === idx - 1) {
+                // Calculate score
+                const score = questionCorrectness.filter(c => c === true).length;
+                console.log(`Section ${currentSectionIdx + 1} Score: ${score}`);
+
+                if (currentSectionIdx === 0) s1Score = score;
+                if (currentSectionIdx === 1) s2Score = score;
+
+
+            }
+
+            currentSectionIdx = idx;
+            if (idx >= sections.length) { renderScoreScreen(); return; }
+
+            const sec = sections[idx];
+            currentQIdx = 0;
+            answers = new Array(sec.count).fill(false); // UI Status (Answered vs Not)
+            questionCorrectness = new Array(sec.count).fill(false); // Correctness
+            timeLeft = sec.minutes * 60;
+            updateTimerDisplay();
+            markedQuestions = new Array(sec.count).fill(false);
+
+            document.getElementById('section-info-text').innerText = `Section ${idx + 1} of 4`;
+
+            // Build Start Screen HTML
+            const ovalIcon = `<span style="display:inline-block; width:14px; height:14px; border:1px solid black; border-radius:50%; vertical-align:middle; margin:0 2px;"></span>`;
+            const squareIcon = `<span style="display:inline-block; width:14px; height:14px; border:1px solid black; vertical-align:middle; margin:0 2px;"></span>`;
+
+            let html = `
+                <div class="section-instructions" style="padding: 20px 40px; font-family: Arial, sans-serif; font-size: 14px; line-height: 1.5; text-align: left;">
+                    <div class="section-title" style="margin-bottom: 5px; font-weight: bold; font-size: 24px;">${sec.name}</div>
+                    <div class="section-info" style="margin-bottom: 20px; font-weight: bold;">
+                        ${sec.count} Questions<br>
+                        ${sec.minutes} minutes
+                    </div>
+                    <hr style="border: 0; border-top: 1px solid #ccc; margin-bottom: 20px;">
+                    <p style="margin-bottom: 20px;">For each question, indicate the best answer using the directions given. If you need more detailed directions, select <b>Help</b> at any time.</p>
+            `;
+
+            if (sec.type === 'quant') {
+                html += `<p style="margin-bottom: 20px;"><b>An on-screen calculator is available for each question in this section. To use the calculator, select the calculator button.</b></p>`;
+            }
+
+            html += `<p style="margin-bottom: 20px;">If a question has answer choices with <b>circles</b> ${ovalIcon}, then the correct answer consists of a single choice. If a question has answer choices with <b>square boxes</b> ${squareIcon}, then the correct answer consists of one or more answer choices. Read the directions for each question carefully. The directions will indicate if you should select one or more answer choices. To answer questions based on a ${sec.type === 'verbal' ? 'reading passage' : 'data presentation'}, you may need to scroll ${sec.type === 'verbal' ? 'to read the entire passage' : 'or use your keyboard to access the entire presentation'}.${sec.type === 'verbal' ? ' You may also use your keyboard to navigate through the passage.' : ''}</p>`;
+
+            if (sec.type === 'quant') {
+                html += `
+                    <p style="margin-bottom: 10px;">All numbers used are real numbers.</p>
+                    <p style="margin-bottom: 10px;">All figures are assumed to lie in a plane unless otherwise indicated.</p>
+                    <p style="margin-bottom: 20px;">Geometric figures, such as lines, circles, triangles, and quadrilaterals, <b>are not necessarily</b> drawn to scale. That is, you should <b>not</b> assume that quantities such as lengths and angle measures are as they appear in a figure. You should assume, however, that lines shown as straight are actually straight, points on a line are in the order shown, and more generally, all geometric objects are in the relative positions shown. For questions with geometric figures, you should base your answers on geometric reasoning, not on estimating or comparing quantities by sight or by measurement.</p>
+                    <p style="margin-bottom: 10px;">Coordinate systems, such as \\(xy\\)-planes and number lines, <b>are</b> drawn to scale; therefore you can read, estimate, or compare quantities in such figures by sight or by measurement.</p>
+                    <p style="margin-bottom: 20px;">Graphical data presentations, such as bar graphs, circle graphs, and line graphs, <b>are</b> drawn to scale; therefore, you can read, estimate, or compare data values by sight or by measurement.</p>
+                `;
+            }
+
+            html += `<p style="margin-top: 30px;">Select <b>Continue</b> to proceed.</p></div>`;
+
+            const startView = document.getElementById('section-start-view');
+            startView.innerHTML = html;
+
+            if (window.MathJax) MathJax.typesetPromise([startView]);
+
+            showScreen('start');
+            toggleCalcButton(sec.type === 'quant');
+        }
+
+        function toggleCalcButton(show) {
+            const btn = document.getElementById('btn-calc');
+            if (show) btn.classList.remove('hidden');
+            else btn.classList.add('hidden');
+        }
+
+        function handleContinue() {
+            if (!document.getElementById('section-start-view').classList.contains('hidden')) {
+                showScreen('question');
+                startTimer();
+            } else if (isInReview && selectedReviewIdx !== null) {
+                currentQIdx = selectedReviewIdx;
+                showScreen('question');
+            }
+        }
+
+        function showScreen(type) {
+            const views = ['section-start-view', 'question-view', 'review-view', 'exit-view', 'end-section-view']
+            views.forEach(id => document.getElementById(id).classList.add('hidden'));
+
+            if (type === 'review') {
+                document.getElementById('standard-nav-buttons').classList.add('hidden');
+                document.getElementById('review-nav-buttons').classList.remove('hidden');
+                document.getElementById('end-section-nav-buttons').classList.add('hidden');
+            } else if (type === 'endSection') {
+                document.getElementById('standard-nav-buttons').classList.add('hidden');
+                document.getElementById('review-nav-buttons').classList.add('hidden');
+                document.getElementById('end-section-nav-buttons').classList.remove('hidden');
+            } else {
+                document.getElementById('standard-nav-buttons').classList.remove('hidden');
+                document.getElementById('review-nav-buttons').classList.add('hidden');
+                document.getElementById('end-section-nav-buttons').classList.add('hidden');
+            }
+
+            if (type === 'start') {
+                document.getElementById('section-start-view').classList.remove('hidden');
+                document.getElementById('btn-back').classList.add('hidden');
+                document.getElementById('btn-next').classList.add('hidden');
+                document.getElementById('btn-continue').classList.remove('hidden');
+            } else if (type === 'question') {
+                document.getElementById('question-view').classList.remove('hidden');
+                document.getElementById('btn-back').classList.remove('hidden');
+                document.getElementById('btn-next').classList.remove('hidden');
+                document.getElementById('btn-continue').classList.add('hidden');
+                renderQuestion();
+                isInReview = false;
+            } else if (type === 'review') {
+                document.getElementById('review-view').classList.remove('hidden');
+                renderReview();
+                isInReview = true;
+            } else if (type === 'exit') {
+                document.getElementById('exit-view').classList.remove('hidden');
+            } else if (type === 'endSection') {
+                document.getElementById('end-section-view').classList.remove('hidden');
+                isInReview = false;
+            }
+        }
+
+        function getQuestionHtml(secIdx, qIdx) {
+            if (secIdx === 0) return verbalQuestions[qIdx % verbalQuestions.length];
+            if (secIdx === 1) return quantQuestions[qIdx % quantQuestions.length];
+
+            if (secIdx === 2) { // Verbal 2
+                if (s1Score <= 3) { // Easy
+                    const idx = verbalEasyIndices[qIdx % verbalEasyIndices.length];
+                    return verbalQuestions[idx];
+                } else if (s1Score >= 8) { // Hard
+                    const idx = verbalHardIndices[qIdx % verbalHardIndices.length];
+                    return verbalQuestions[idx];
+                } else { // Medium (Standard)
+                    return verbalQuestions[qIdx % verbalQuestions.length];
+                }
+            }
+
+            if (secIdx === 3) { // Quant 2
+                if (s2Score <= 3) { // Easy
+                    const idx = quantEasyIndices[qIdx % quantEasyIndices.length];
+                    return quantQuestions[idx];
+                } else if (s2Score >= 8) { // Hard
+                    const idx = quantHardIndices[qIdx % quantHardIndices.length];
+                    return quantQuestions[idx];
+                } else { // Medium (Standard)
+                    return quantQuestions[qIdx % quantQuestions.length];
+                }
+            }
+            return "";
+        }
+
+        function renderQuestion() {
+            const sec = sections[currentSectionIdx];
+            document.getElementById('section-info-text').innerText = `Section ${currentSectionIdx + 1} of 4 | Question ${currentQIdx + 1} of ${sec.count}`;
+            const qContainer = document.getElementById('question-view');
+
+            qContainer.innerHTML = getQuestionHtml(currentSectionIdx, currentQIdx);
+
+            if (window.MathJax) MathJax.typesetPromise([qContainer]);
+
+            attachQuestionListeners(qContainer);
+
+            document.getElementById('btn-back').disabled = (currentQIdx === 0);
+
+            const btnMark = document.getElementById('btn-mark');
+            if (markedQuestions[currentQIdx]) {
+                btnMark.classList.add('marked-active');
+                btnMark.querySelector('.toolbar-icon').innerText = '☑';
+            } else {
+                btnMark.classList.remove('marked-active');
+                btnMark.querySelector('.toolbar-icon').innerText = '☐';
+            }
+
+            // Note: We don't fully restore UI state for re-visited questions in this mock adaptation
+            // because simple boolean 'answers' array is insufficient for complex UI states.
+            // But we do track correctness based on LAST interaction.
+        }
+
+        function nextQuestion() {
+            if (currentQIdx < sections[currentSectionIdx].count - 1) {
+                currentQIdx++;
+                renderQuestion();
+            } else {
+                showScreen('endSection');
+            }
+        }
+
+        function goToNextSection() {
+            startSection(currentSectionIdx + 1);
+        }
+
+        function prevQuestion() {
+            if (currentQIdx > 0) {
+                currentQIdx--;
+                renderQuestion();
+            }
+        }
+
+        function toggleReview() {
+            if (isInReview) showScreen('question');
+            else showScreen('review');
+        }
+
+        function renderReview() {
+            const sec = sections[currentSectionIdx];
+            const half = Math.ceil(sec.count / 2);
+            const tbodyLeft = document.querySelector('#rev-table-left tbody');
+            const tbodyRight = document.querySelector('#rev-table-right tbody');
+            tbodyLeft.innerHTML = ''; tbodyRight.innerHTML = '';
+
+            for (let i = 0; i < sec.count; i++) {
+                const tr = document.createElement('tr');
+                const isMarked = markedQuestions[i] ? '✔' : '';
+                tr.innerHTML = `<td>${i + 1}</td><td>${answers[i] ? 'Answered' : 'Not Answered'}</td><td>${isMarked}</td>`;
+                tr.onclick = () => {
+                    document.querySelectorAll('.review-table tr').forEach(r => r.classList.remove('selected'));
+                    tr.classList.add('selected');
+                    selectedReviewIdx = i;
+                };
+                if (i < half) tbodyLeft.appendChild(tr);
+                else tbodyRight.appendChild(tr);
+            }
+        }
+
+        // --- Question Interaction & Grading Logic ---
+        function checkCorrectness(container) {
+            // This function checks the current state of 'container' against the data-attributes
+            // And updates questionCorrectness[currentQIdx]
+
+            // Types of questions:
+            // 1. Single Select (Option Circle)
+            // 2. Multi Select (Option Square)
+            // 3. Table Select (td inversed)
+            // 4. Input (text)
+            // 5. Sentence Select
+
+            let isCorrect = false;
+
+            // Logic:
+            // We assume initially false. We verify if the selected items match the data-correct=true items.
+
+            // 1. Inputs (Numeric/Fraction)
+            const inputs = container.querySelectorAll('input[type="text"]');
+            if (inputs.length > 0) {
+                const fractionInputs = container.querySelectorAll('.fraction-input');
+                if (fractionInputs.length === 2) {
+                    // Fraction entry — check equivalence via cross multiplication
+                    const userNum = parseFloat(fractionInputs[0].value.trim());
+                    const userDen = parseFloat(fractionInputs[1].value.trim());
+                    const correctNum = parseFloat(fractionInputs[0].dataset.answer);
+                    const correctDen = parseFloat(fractionInputs[1].dataset.answer);
+                    if (!isNaN(userNum) && !isNaN(userDen) && !isNaN(correctNum) && !isNaN(correctDen) && userDen !== 0 && correctDen !== 0) {
+                        isCorrect = (userNum * correctDen === correctNum * userDen);
+                    } else {
+                        isCorrect = false;
+                    }
+                } else {
+                    // Numeric entry — compare as numbers
+                    let allMatch = true;
+                    let hasValue = false;
+                    inputs.forEach(inp => {
+                        const val = inp.value.trim();
+                        if (val !== "") hasValue = true;
+                        if (inp.dataset.answer) {
+                            if (val === "" || parseFloat(val) !== parseFloat(inp.dataset.answer)) allMatch = false;
+                        }
+                    });
+                    if (hasValue && allMatch) isCorrect = true;
+                    else isCorrect = false;
+                }
+                // Note: If multiple inputs, checking logic matches "All must be correct".
+            }
+            else {
+                // Selectable elements
+                // Find all elements with data-correct="true"
+                const correctElements = Array.from(container.querySelectorAll('[data-correct="true"]'));
+
+                // Find all USER selected elements
+                // Selected classes: 'filled-circle' (circle), 'crossed-square' (square), 'inverted-text' (table), 'selected' (sentence)
+                const selectedElements = Array.from(container.querySelectorAll('.filled-circle, .crossed-square, .inverted-text, .selected'));
+
+                // We need to map selected elements to their containers if the class is on a child?
+                // Circle/Square are children of option-item. data-correct usually on option-item.
+                // Inverted-text is on TD. data-correct is on TD.
+                // Selected is on sentence-span. data-correct is on sentence-span.
+
+                // Let's normalize.
+                let userSelectionCount = 0;
+                let matchCount = 0;
+
+                selectedElements.forEach(el => {
+                    userSelectionCount++;
+                    // Find the parent that might have data-correct
+                    let parent = el;
+                    if (el.classList.contains('filled-circle') || el.classList.contains('crossed-square')) {
+                        parent = el.closest('.option-item');
+                    }
+                    if (parent && parent.dataset.correct === 'true') {
+                        matchCount++;
+                    } else {
+                        // User selected something that IS NOT marked correct
+                        matchCount = -999; // Fail
+                    }
+                });
+
+                // Check if we matched ALL correct answers and selected NO wrong answers
+                // And we must have selected at least one thing?
+                const totalCorrectNeeded = correctElements.length;
+
+                if (userSelectionCount > 0 && matchCount === totalCorrectNeeded) {
+                    isCorrect = true;
+                }
+            }
+
+            questionCorrectness[currentQIdx] = isCorrect;
+            answers[currentQIdx] = true; // Mark as answered
+        }
+
+        function attachQuestionListeners(container) {
+            // We wrap the specific logic to also trigger checkCorrectness()
+
+            // --- Q1: Single Column Table ---
+            const q1Table = container.querySelector('.options-table-q1');
+            if (q1Table) {
+                q1Table.addEventListener('click', (e) => {
+                    const td = e.target.closest('td');
+                    if (td) {
+                        q1Table.querySelectorAll('td').forEach(cell => cell.classList.remove('inverted-text'));
+                        td.classList.add('inverted-text');
+                        checkCorrectness(container);
+                    }
+                });
+            }
+
+            // --- Q2: Multi Column ---
+            const q2Cols = container.querySelectorAll('.options-wrapper .choice-column');
+            q2Cols.forEach(col => {
+                col.addEventListener('click', (e) => {
+                    const td = e.target.closest('td');
+                    if (td) {
+                        const isSelected = td.classList.contains('inverted-text');
+                        col.querySelectorAll('td').forEach(cell => cell.classList.remove('inverted-text'));
+                        if (!isSelected) {
+                            td.classList.add('inverted-text');
+                            checkCorrectness(container);
+                        }
+                    }
+                });
+            });
+
+            // --- Circles/Squares ---
+            const optionItems = container.querySelectorAll('.option-item');
+            const hasCircles = container.querySelector('.option-circle');
+
+            if (hasCircles) {
+                optionItems.forEach(item => {
+                    item.addEventListener('click', () => {
+                        const circle = item.querySelector('.option-circle');
+                        if (circle) {
+                            const isSelected = circle.classList.contains('filled-circle');
+                            container.querySelectorAll('.option-circle').forEach(c => c.classList.remove('filled-circle'));
+                            if (!isSelected) {
+                                circle.classList.add('filled-circle');
+                                checkCorrectness(container);
+                            }
+                        }
+                    });
+                });
+            } else {
+                const hasSquares = container.querySelector('.option-square');
+                if (hasSquares) {
+                    const header = container.querySelector('.header-banner');
+                    const isSelectTwo = header && header.innerText.includes('Select the two answer choices');
+
+                    optionItems.forEach(item => {
+                        item.addEventListener('click', () => {
+                            const square = item.querySelector('.option-square');
+                            if (square) {
+                                const isSelected = square.classList.contains('crossed-square');
+                                if (isSelected) {
+                                    square.classList.remove('crossed-square');
+                                } else {
+                                    if (isSelectTwo) {
+                                        const count = container.querySelectorAll('.crossed-square').length;
+                                        if (count < 2) square.classList.add('crossed-square');
+                                    } else {
+                                        square.classList.add('crossed-square');
+                                    }
+                                }
+                                checkCorrectness(container);
+                            }
+                        });
+                    });
+                }
+            }
+
+            // --- Sentence Selection ---
+            const sentences = container.querySelectorAll('.sentence-span');
+            sentences.forEach(span => {
+                span.addEventListener('click', () => {
+                    const isSelected = span.classList.contains('selected');
+                    sentences.forEach(s => s.classList.remove('selected'));
+                    if (!isSelected) {
+                        span.classList.add('selected');
+                        checkCorrectness(container);
+                    }
+                });
+            });
+
+            // --- Inputs ---
+            const inputs = container.querySelectorAll('input[type="text"]');
+            inputs.forEach(inp => {
+                inp.addEventListener('input', () => {
+                    checkCorrectness(container);
+                });
+            });
+        }
+
+        // --- Missing Helper Functions ---
+        function toggleMark() {
+            markedQuestions[currentQIdx] = !markedQuestions[currentQIdx];
+            const btnMark = document.getElementById('btn-mark');
+            if (markedQuestions[currentQIdx]) {
+                btnMark.classList.add('marked-active');
+                btnMark.querySelector('.toolbar-icon').innerText = '☑';
+            } else {
+                btnMark.classList.remove('marked-active');
+                btnMark.querySelector('.toolbar-icon').innerText = '☐';
+            }
+        }
+
+        function showExitModal() { showScreen('exit'); }
+
+        function closeExitModal() {
+            if (isInReview) showScreen('review');
+            else if (currentQIdx >= 0) showScreen('question');
+            else showScreen('start');
+        }
+
+        function confirmExit() {
+            if (typeof timer !== 'undefined' && timer) clearInterval(timer);
+            startSection(currentSectionIdx + 1);
+        }
+
+        function toggleCalc() {
+            document.getElementById('calculator').classList.toggle('hidden');
+        }
+
+        function startTimer() {
+            if (typeof timer !== 'undefined' && timer) clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                const h = Math.floor(timeLeft / 3600);
+                const m = Math.floor((timeLeft % 3600) / 60);
+                const s = timeLeft % 60;
+                const timerDisplay = document.getElementById('timer-display');
+                if (timerDisplay) {
+                    timerDisplay.innerText = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+                }
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    alert("Time's up!");
+                    startSection(currentSectionIdx + 1);
+                }
+            }, 1000);
+        }
+
+        let dragInfo = null;
+        function dragCalc(e) { dragInfo = { el: document.getElementById('calculator'), x: e.clientX, y: e.clientY, l: document.getElementById('calculator').offsetLeft, t: document.getElementById('calculator').offsetTop }; document.addEventListener('mousemove', movingCalc); document.addEventListener('mouseup', stopCalc); }
+        function movingCalc(e) { if (!dragInfo) return; dragInfo.el.style.left = (dragInfo.l + e.clientX - dragInfo.x) + 'px'; dragInfo.el.style.top = (dragInfo.t + e.clientY - dragInfo.y) + 'px'; }
+        function stopCalc() { dragInfo = null; document.removeEventListener('mousemove', movingCalc); document.removeEventListener('mouseup', stopCalc); }
+
+        // --- Calculator Logic ---
+        let calcMemory = 0;
+
+        // State for immediate execution calculator
+        let calcCurrentVal = "0"; // String representation of what's shown
+        let calcPreviousVal = null; // Stored value before operator
+        let calcOperator = null; // Pending operator
+        let calcNewNumber = true; // Flag: if true, next digit starts new number (e.g. after operator press)
+        let calcError = false;
+
+        function updateCalcDisplay(val) {
+            document.querySelector('.calc-display').value = val;
+        }
+
+        function formatResult(num) {
+            if (!isFinite(num) || isNaN(num)) return "Error";
+            let str = String(Math.abs(num));
+            let parts = str.split('.');
+            let intPart = parts[0];
+            if (intPart.length > 8) return "Error";
+            let res = num;
+            let resStr = String(res);
+            let digCount = resStr.replace(/[-.]/g, '').length;
+            if (digCount > 8) {
+                let actualInt = Math.floor(Math.abs(res));
+                let intLen = String(actualInt).length;
+                let availableDecimal = 8 - intLen;
+                if (availableDecimal < 0) return "Error";
+                let factor = Math.pow(10, availableDecimal);
+                res = Math.round(num * factor) / factor;
+                resStr = String(res);
+                if (resStr.replace(/[-.]/g, '').length > 8) {
+                    return "Error";
+                }
+            }
+            return String(res);
+        }
+
+        function checkInputLimit(currentStr) {
+            let digits = currentStr.replace(/[-.]/g, '');
+            return digits.length < 8;
+        }
+
+        function calcAppend(val) {
+            if (calcError) {
+                if (val === 'C' || val === 'CE') { }
+                else return;
+            }
+            if (calcNewNumber) {
+                calcCurrentVal = "0";
+                calcNewNumber = false;
+            }
+            if (val === '.') {
+                if (calcCurrentVal.includes('.')) return;
+                calcCurrentVal += '.';
+            } else {
+                if (checkInputLimit(calcCurrentVal)) {
+                    if (calcCurrentVal === '0' || calcCurrentVal === '-0') {
+                        if (calcCurrentVal === '-0') calcCurrentVal = '-' + val;
+                        else calcCurrentVal = val;
+                    } else {
+                        calcCurrentVal += val;
+                    }
+                }
+            }
+            updateCalcDisplay(calcCurrentVal);
+        }
+
+        function calcPerformOp(op) {
+            if (calcError) return;
+            if (calcOperator && !calcNewNumber) {
+                calcEval(true);
+            }
+            calcPreviousVal = parseFloat(calcCurrentVal);
+            calcOperator = op;
+            calcNewNumber = true;
+        }
+
+        function calcAppend(val) {
+            if (calcError) return;
+            if ('0123456789.'.indexOf(val) !== -1) {
+                if (calcNewNumber) {
+                    calcCurrentVal = "0";
+                    calcNewNumber = false;
+                }
+                if (val === '.') {
+                    if (calcCurrentVal.includes('.')) return;
+                    if (alcCurrentVal === '') calcCurrentVal = '0.';
+                    else calcCurrentVal += '.';
+                } else {
+                    if (checkInputLimit(calcCurrentVal)) {
+                        if (calcCurrentVal === '0') calcCurrentVal = val;
+                        else if (calcCurrentVal === '-0') calcCurrentVal = '-' + val;
+                        else calcCurrentVal += val;
+                    }
+                }
+                updateCalcDisplay(calcCurrentVal);
+            } else if (val === '(' || val === ')') {
+                return;
+            } else {
+                calcPerformOp(val);
+            }
+        }
+
+        function calcClear(type) {
+            if (type === 'C') {
+                calcCurrentVal = "0";
+                calcPreviousVal = null;
+                calcOperator = null;
+                calcNewNumber = true;
+                calcError = false;
+                updateCalcDisplay("0.");
+            } else if (type === 'CE') {
+                calcCurrentVal = "0";
+                updateCalcDisplay("0.");
+            }
+        }
+
+        function calcEval(intermediate = false) {
+            if (calcError) return;
+            if (!calcOperator || calcPreviousVal === null) return;
+            let current = parseFloat(calcCurrentVal);
+            let result = 0;
+            switch (calcOperator) {
+                case '+': result = calcPreviousVal + current; break;
+                case '-': result = calcPreviousVal - current; break;
+                case '*': result = calcPreviousVal * current; break;
+                case '/':
+                    if (current === 0) {
+                        calcError = true;
+                        updateCalcDisplay("Error");
+                        return;
+                    }
+                    result = calcPreviousVal / current;
+                    break;
+            }
+            let fmt = formatResult(result);
+            if (fmt === "Error") {
+                calcError = true;
+                updateCalcDisplay("Error");
+            } else {
+                calcCurrentVal = fmt;
+                updateCalcDisplay(calcCurrentVal);
+                if (!intermediate) {
+                    calcPreviousVal = null;
+                    calcOperator = null;
+                    calcNewNumber = true;
+                }
+            }
+        }
+
+        function calcSqrt() {
+            if (calcError) return;
+            let val = parseFloat(calcCurrentVal);
+            if (val < 0) {
+                calcError = true;
+                updateCalcDisplay("Error");
+                return;
+            }
+            let res = Math.sqrt(val);
+            let fmt = formatResult(res);
+            if (ft === "Error") {
+                calcError = true;
+                updateCalcDisplay("Error");
+            } else {
+                calcCurrentVal = fmt;
+                updateCalcDisplay(calcCurrentVal);
+                calcNewNumber = true;
+            }
+        }
+
+        function calcNeg() {
+            if (calcError) return;
+            if (calcCurrentVal === "0") return;
+            if (calcCurrentVal.startsWith('-')) calcCurrentVal = calcCurrentVal.substring(1);
+            else calcCurrentVal = '-' + calcCurrentVal;
+            updateCalcDisplay(calcCurrentVal);
+        }
+
+        function calcMem(op) {
+            if (calcError) return;
+            let current = parseFloat(calcCurrentVal) || 0;
+            if (op === 'M+') {
+                calcMemory += current;
+                calcNewNumber = true;
+            } else if (op === 'MC') {
+                calcMemory = 0;
+            } else if (op === 'MR') {
+                calcCurrentVal = formatResult(calcMemory);
+                updateCalcDisplay(calcCurrentVal);
+                calcNewNumber = true;
+            }
+        }
+
+        function transferDisplay() {
+            const qView = document.getElementById('question-view');
+            const numericInput = qView.querySelector('.numeric-entry-box');
+            if (numericInput) {
+                numericInput.value = document.querySelector('.calc-display').value;
+                checkCorrectness(qView); // Check correctness on transfer
+            }
+        }
+
+
+    </script>
+</body>
+
+</html>

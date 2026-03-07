@@ -1,0 +1,15 @@
+Create five problems based on problem 1 from ETS Powerprep plus 1 Section 2 (easy) folder. Each successive problem should introduce greater differences from the original, with the fifth being the most distinct. Replace generated_variations.html with this file. Use the same style and formatting as Question List and Question List Original. 
+
+Add that problem to Question List Original and make the style and formatting the same as the two Question Lists.
+
+Create five problems based on problem 2 from ETS Powerprep plus 3 Section 2 (medium) folder. Each successive problem should introduce greater differences from the original, with the fifth being the most distinct. Replace generated_variations.html with this file. Use the same style and formatting as Question List and Question List Original. 
+
+Create five problems based on problem 2 from ETS Practice test 1 Section 2 (easy) folder. Each successive problem should introduce greater differences from the original, with the fifth being the most distinct. Replace generated_variations.html with this file. Use the same style and formatting as Question List and Question List Original. 
+
+Powerprep 1 Section 1
+Powerprep plus 2 Section 1
+Powerprep 1 Section 2 (easy)
+Powerprep plus 3 Section 2 (medium)
+ETS Practice test 1 Section 2 (easy) [Not done: Finished #3]
+
+Create five problems based on problem 4 from ETS Powerprep 3 Section 1 folder. Each successive problem should introduce greater differences from the original, with the fifth being the most distinct. Replace generated_variations.html with this file. Also show the original problem. Use the same style and formatting as Question List and Question List Original. 
