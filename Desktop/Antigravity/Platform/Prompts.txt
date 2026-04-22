@@ -10,6 +10,14 @@ Powerprep 1 Section 1
 Powerprep plus 2 Section 1
 Powerprep 1 Section 2 (easy)
 Powerprep plus 3 Section 2 (medium)
-ETS Practice test 1 Section 2 (easy) [Not done: Finished #3]
+ETS Practice test 1 Section 2 (easy) 
 
 Create five problems based on problem 4 from ETS Powerprep 3 Section 1 folder. Each successive problem should introduce greater differences from the original, with the fifth being the most distinct. Replace generated_variations.html with this file. Also show the original problem. Use the same style and formatting as Question List and Question List Original. 
+
+Add variation 4 (without the diagram) to pool_data_quant in the same style and formatting of pool_data_quant. It should start as unvetted and difficulty 3. Add Class 4 tag and Geometry tag using //. 
+
+Create five problems based on this problem. Each successive problem should introduce greater differences from the original (including changing the type of question) with the fifth being the most distinct. Replace generated_variations.html with these variations. Also show the original problem. Use the same style and formatting as pool_data_quant. 
+
+Add this QC problem: Use the attached diagram to create a better version. Under the diagram it should read, "O is the center of the circle and AB is congruent to AC." Quantity A: x Quantity B: 25.  And add it to pool_data_quant in the same style and formatting of other QC problems in pool_data_quant. It should start as unvetted and difficulty 4. Add Class 4 tag and Geometry tag using //. 
+
+Create 15 GRE quant word problems that are distinct from these problems (FilteredWord.html). Make them a mix of easy, medium and hard and a mix of multiple choice, multi-select, quantitative comparison, and numeric entry. Don't put the response as a html. Just give them to me here. Add them to pool_data_quant in the same style and formatting of pool_data_quant. They should all start unvetted. This is important. You didn't do this last time. Make them start unvetted. Don't add tags or explanations yet.
